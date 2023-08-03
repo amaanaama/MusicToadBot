@@ -1,11 +1,12 @@
 import discord
 import spotipy
 import random
+import config 
 from spotipy.oauth2 import SpotifyClientCredentials
 
-DISCORD_TOKEN = 'MTEzNjM5MjQ5MjkxMzI2NjgxOQ.GjlCks.CsknzQeXD_1W1ygHzhkVcMS80fNguB1bBWxB_U'
-SPOTIFY_CLIENT_ID = '69435b84f9e447138dc2c45323c42c4c'
-SPOTIFY_CLIENT_SECRET = 'a34ce5786aa94ec2a50941971626a84a'
+DISCORD_TOKEN = config.DISCORD_TOKEN
+SPOTIFY_CLIENT_ID = config.SPOTIFY_CLIENT_ID
+SPOTIFY_CLIENT_SECRET = config.SPOTIFY_CLIENT_SECRET
 DEFAULT_PLAYLIST_URI = 'spotify:playlist:6s8pr9gAJ4Ja2oNK90ddhL'
 COMMAND_PREFIX = '!'
 
