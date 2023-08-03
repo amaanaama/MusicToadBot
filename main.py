@@ -18,6 +18,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=SPOTIFY_CLI
 
 playlist_storage = {}
 
+
 @client.event
 async def on_ready():
     print('Logged in as {0.user}'.format(client))
