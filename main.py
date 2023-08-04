@@ -20,7 +20,7 @@ client = discord.Client(intents=intents)
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET))
 
 playlist_storage = {}
-target_time = time(10, 35)  # Replace with the desired time in 24-hour format (e.g., time(10, 25) for 10:25 AM)
+target_time = time(15, 13)  
 
 
 @client.event
@@ -49,7 +49,7 @@ async def on_message(message):
             else:
                 await message.channel.send("You don't have the required permissions to set the playlist.")
 
-        elif command.startswith('set_channel'):
+        elif command.startswith('sc'):
             if message.author.guild_permissions.manage_channels:
                 channel_id = message.content.split(' ')[1]
                 # Validate if the provided channel ID exists
@@ -74,6 +74,17 @@ def get_playlist_id(playlist_url):
 
 
 # Task to send the song of the day message
+import requests
+
+def get_cover_image(song_link):
+    track_id = song_link.split('/')[-1].split('?')[0]
+    track_info = sp.track(track_id)
+    if track_info and 'album' in track_info and 'images' in track_info['album'] and len(track_info['album']['images']) > 0:
+        cover_image_url = track_info['album']['images'][0]['url']
+        return cover_image_url
+    else:
+        return None
+
 async def send_song_of_the_day():
     for guild_id, playlist_data in playlist_storage.items():
         channel_id = playlist_data.get("channel")
@@ -94,8 +105,30 @@ async def send_song_of_the_day():
 
                 song_name = random_track['track']['name']
                 artist_name = random_track['track']['artists'][0]['name']
-                message_text = f"Today's song of the day is {song_name} by {artist_name}!\nCheck it out on Spotify: {random_track['track']['external_urls']['spotify']}"
-                await channel.send(message_text)
+                spotify_track_url = random_track['track']['external_urls']['spotify']
+
+                # Get the cover image URL for the selected song
+                cover_image_url = get_cover_image(spotify_track_url)
+
+                if cover_image_url:
+                    # Download the cover image
+                    response = requests.get(cover_image_url)
+                    if response.status_code == 200:
+                        with open("cover_image.jpg", "wb") as f:
+                            f.write(response.content)
+
+                        # Send the message with the cover image
+                        message_text = f"Today's song of the day is {song_name} by {artist_name}!\n{spotify_track_url}"
+                        await channel.send(message_text, file=discord.File("cover_image.jpg"))
+                    else:
+                        # If there was an issue with the cover image, send the message without it
+                        message_text = f"Today's song of the day is {song_name} by {artist_name}!\n{spotify_track_url}"
+                        await channel.send(message_text)
+                else:
+                    # If cover image URL could not be retrieved, send the message without it
+                    message_text = f"Today's song of the day is {song_name} by {artist_name}!\n{spotify_track_url}"
+                    await channel.send(message_text)
+
 
 
 async def schedule_send_song_of_the_day():
