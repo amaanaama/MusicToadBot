@@ -3,9 +3,13 @@ import spotipy
 import random
 import config
 import re
+import os
+import asyncio
+import requests
+
 from spotipy.oauth2 import SpotifyClientCredentials
 from datetime import date, time, timedelta, datetime
-import asyncio
+
 
 DISCORD_TOKEN = config.DISCORD_TOKEN
 SPOTIFY_CLIENT_ID = config.SPOTIFY_CLIENT_ID
@@ -74,7 +78,7 @@ def get_playlist_id(playlist_url):
 
 
 # Task to send the song of the day message
-import requests
+
 
 def get_cover_image(song_link):
     track_id = song_link.split('/')[-1].split('?')[0]
@@ -120,6 +124,7 @@ async def send_song_of_the_day():
                         # Send the message with the cover image
                         message_text = f"Today's song of the day is {song_name} by {artist_name}!\n{spotify_track_url}"
                         await channel.send(message_text, file=discord.File("cover_image.jpg"))
+                        os.remove("cover_image.jpg")
                     else:
                         # If there was an issue with the cover image, send the message without it
                         message_text = f"Today's song of the day is {song_name} by {artist_name}!\n{spotify_track_url}"
