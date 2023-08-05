@@ -156,9 +156,8 @@ async def schedule_send_song_of_the_day():
 
 
 async def run_bot():
-    await client.start(DISCORD_TOKEN)
+    await client.wait_until_ready()  # Wait until the bot is ready (connected to Discord)
+    print('Bot is online and connected to Discord.')
+    await asyncio.gather(client.start(DISCORD_TOKEN), schedule_send_song_of_the_day())
 
-try:
-    asyncio.run(run_bot())
-except KeyboardInterrupt:
-    asyncio.run(client.close())
+client.run(DISCORD_TOKEN)
