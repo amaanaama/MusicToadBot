@@ -11,9 +11,9 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from datetime import date, time, timedelta, datetime
 
 
-DISCORD_TOKEN = config.DISCORD_TOKEN
-SPOTIFY_CLIENT_ID = config.SPOTIFY_CLIENT_ID
-SPOTIFY_CLIENT_SECRET = config.SPOTIFY_CLIENT_SECRET
+DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
+SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
+SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 DEFAULT_PLAYLIST_URI = 'spotify:playlist:6s8pr9gAJ4Ja2oNK90ddhL'
 COMMAND_PREFIX = '!'
 
