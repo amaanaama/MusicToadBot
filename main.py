@@ -1,7 +1,6 @@
 import discord
 import spotipy
 import random
-import config
 import re
 import os
 import asyncio
