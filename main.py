@@ -143,20 +143,23 @@ async def schedule_send_song_of_the_day():
         # Check if the current time is after the target time for today
         if current_time > target_time:
             # Add one day to the target date to schedule for the next day
-            target_datetime += timedelta(hours=1)
+            target_datetime += timedelta(days=1)
 
         # Calculate the seconds to sleep until the target time
         sleep_seconds = (target_datetime - datetime.now()).total_seconds()
         await asyncio.sleep(sleep_seconds)
 
         await send_song_of_the_day()
-        # Add one day to the target date to schedule for the next day
-        target_datetime += timedelta(hours=1)
 
+        # Schedule the task for the next hour
+        target_datetime += timedelta(hours=1)
 
 async def run_bot():
     await client.wait_until_ready()  # Wait until the bot is ready (connected to Discord)
     print('Bot is online and connected to Discord.')
-    await asyncio.gather(client.start(DISCORD_TOKEN), schedule_send_song_of_the_day())
+    client.loop.create_task(schedule_send_song_of_the_day())  # Schedule the task to start immediately
+    await client.start(DISCORD_TOKEN)
 
-client.run(DISCORD_TOKEN)
+# Run the bot
+loop = asyncio.get_event_loop()
+loop.run_until_complete(run_bot())
