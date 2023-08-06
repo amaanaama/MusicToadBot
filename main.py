@@ -32,7 +32,6 @@ async def on_ready():
     await send_song_of_the_day()  # Send the song of the day when the bot starts
     client.loop.create_task(schedule_send_song_of_the_day())  # Schedule the task for the next day
 
-
 @client.event
 async def on_message(message):
     if message.content.startswith(COMMAND_PREFIX):
