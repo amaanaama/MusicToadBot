@@ -154,10 +154,10 @@ async def schedule_send_song_of_the_day():
         target_datetime += timedelta(hours=1)
 
 async def run_bot():
-    await client.wait_until_ready()  # Wait until the bot is ready (connected to Discord)
+    await client.login(DISCORD_TOKEN)  # Login the Discord client using the token
     print('Bot is online and connected to Discord.')
     client.loop.create_task(schedule_send_song_of_the_day())  # Schedule the task to start immediately
-    await client.start(DISCORD_TOKEN)
+    await client.start(DISCORD_TOKEN)  # Start the client using the token
 
 # Run the bot
 loop = asyncio.get_event_loop()
