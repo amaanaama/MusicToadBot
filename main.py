@@ -143,7 +143,7 @@ async def schedule_send_song_of_the_day():
         # Check if the current time is after the target time for today
         if current_time > target_time:
             # Add one day to the target date to schedule for the next day
-            target_datetime += timedelta(days=1)
+            target_datetime += timedelta(hours=1)
 
         # Calculate the seconds to sleep until the target time
         sleep_seconds = (target_datetime - datetime.now()).total_seconds()
@@ -151,7 +151,7 @@ async def schedule_send_song_of_the_day():
 
         await send_song_of_the_day()
         # Add one day to the target date to schedule for the next day
-        target_datetime += timedelta(days=1)
+        target_datetime += timedelta(hours=1)
 
 
 async def run_bot():
