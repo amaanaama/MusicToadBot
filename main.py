@@ -64,6 +64,22 @@ async def on_message(message):
             else:
                 await message.channel.send("You don't have the required permissions to set the channel.")
 
+        elif command.startswith('tl'):
+            await display_time_left(message.channel)
+
+async def display_time_left(channel):
+    current_time = datetime.now().time()
+    target_datetime = datetime.combine(date.today(), target_time)
+
+    if current_time > target_time:
+        target_datetime += timedelta(days=1)
+
+    time_left = target_datetime - datetime.now()
+    hours_left = time_left.seconds // 3600
+    minutes_left = (time_left.seconds // 60) % 60
+    seconds_left = time_left.seconds % 60
+
+    await channel.send(f"Time left until the next song of the day message: {hours_left} hours, {minutes_left} minutes, {seconds_left} seconds.")
 
 def get_playlist_id(playlist_url):
     # Extract playlist ID from the URL using regex
