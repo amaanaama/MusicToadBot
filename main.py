@@ -23,7 +23,7 @@ client = discord.Client(intents=intents)
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET))
 
 playlist_storage = {}
-target_time = time(13, 00)  
+target_time = time(18, 00)  
 
 
 @client.event
@@ -142,13 +142,14 @@ async def schedule_send_song_of_the_day():
         # Check if the current time is after the target time for today
         if current_time > target_time:
             # Add one day to the target date to schedule for the next day
-            target_datetime += timedelta(days=1)
+            target_datetime += timedelta(hours=1)
 
         # Calculate the seconds to sleep until the target time
         sleep_seconds = (target_datetime - datetime.now()).total_seconds()
         await asyncio.sleep(sleep_seconds)
 
         await send_song_of_the_day()
+        await asyncio.sleep(3600)
 
         # Schedule the task for the next hour
         target_datetime += timedelta(hours=1)
