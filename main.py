@@ -133,11 +133,17 @@ async def schedule_send_song_of_the_day():
         target_datetime = datetime.combine(date.today(), target_time)
 
         if current_time > target_time:
-            target_datetime += timedelta(days=1)
+            target_datetime = target_datetime + timedelta(days=1)
 
-        sleep_seconds = (target_datetime - datetime.now()).total_seconds()
-        await asyncio.sleep(sleep_seconds)
+        time_until_target = target_datetime - datetime.now()
+
+        if time_until_target.total_seconds() > 0:
+            await asyncio.sleep(time_until_target.total_seconds())
 
         await send_song_of_the_day()
+
+        # Schedule for the next day
+        target_time += timedelta(days=1)
+
 
 client.run(DISCORD_TOKEN)
