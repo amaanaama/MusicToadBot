@@ -23,7 +23,7 @@ client = discord.Client(intents=intents)
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET))
 
 playlist_storage = {}
-target_time = time(14, 00)  
+target_time = time(14, 10)  
 
 
 @client.event
