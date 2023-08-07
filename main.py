@@ -23,7 +23,7 @@ client = discord.Client(intents=intents)
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET))
 
 playlist_storage = {}
-target_time = time(14, 10)  
+target_time = time(14, 20)  
 
 
 @client.event
@@ -72,7 +72,7 @@ async def display_time_left(channel):
     target_datetime = datetime.combine(date.today(), target_time)
 
     if current_time > target_time:
-        target_datetime += timedelta(days=1)
+        target_datetime += timedelta(hours=1)
 
     time_left = target_datetime - datetime.now()
     hours_left = time_left.seconds // 3600
@@ -112,8 +112,14 @@ async def send_song_of_the_day():
                 playlist_uri = playlist_data["playlist"]
                 playlist_tracks = sp.playlist_tracks(playlist_uri)
 
-                
-                random_track = random.choice(playlist_tracks['items'])
+                # Check if it's a new day or if the playlist has changed
+                today = date.today()
+                last_selected_song = playlist_data["song"]
+                if last_selected_song is None or last_selected_song["date"] != today.strftime('%Y-%m-%d'):
+                    random_track = random.choice(playlist_tracks['items'])
+                    playlist_storage[guild_id] = {"playlist": playlist_uri, "song": {"date": today.strftime('%Y-%m-%d'), "track": random_track}, "channel": channel_id}
+                else:
+                    random_track = last_selected_song["track"]
 
                 song_name = random_track['track']['name']
                 artist_name = random_track['track']['artists'][0]['name']
@@ -156,13 +162,12 @@ async def schedule_send_song_of_the_day():
 
         # Calculate the seconds to sleep until the target time
         sleep_seconds = (target_datetime - datetime.now()).total_seconds()
-
         await asyncio.sleep(sleep_seconds)
 
-        # Schedule the task for sending the song message
-        asyncio.create_task(send_song_of_the_day())
+        await send_song_of_the_day()
+        await asyncio.sleep(3600)
 
-        # Calculate the time for the next song and schedule the task again
+        # Schedule the task for the next hour
         target_datetime += timedelta(hours=1)
 
 async def run_bot():
