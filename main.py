@@ -5,6 +5,7 @@ import re
 import os
 import asyncio
 import requests
+from discord.ext import tasks
 
 from spotipy.oauth2 import SpotifyClientCredentials
 from datetime import date, time, timedelta, datetime
@@ -23,7 +24,7 @@ client = discord.Client(intents=intents)
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET))
 
 playlist_storage = {}
-target_time = time(13, 10)  
+target_time = time(13, 25)  
 
 
 @client.event
@@ -103,7 +104,19 @@ def get_cover_image(song_link):
     else:
         return None
 
+@tasks.loop(hours=24)
 async def send_song_of_the_day():
+    current_time = datetime.now().time()
+    target_datetime = datetime.combine(date.today(), target_time)
+
+    if current_time > target_time:
+        target_datetime += timedelta(days=1)
+
+    time_left = target_datetime - datetime.now()
+    sleep_seconds = time_left.total_seconds()
+
+    await asyncio.sleep(sleep_seconds)
+
     for guild_id, playlist_data in playlist_storage.items():
         channel_id = playlist_data.get("channel")
         if channel_id:
@@ -127,24 +140,6 @@ async def send_song_of_the_day():
                 await channel.send(f"Today's song of the day is {song_name} by {artist_name}!\n{spotify_track_url}")
 
 
-
-async def schedule_send_song_of_the_day(target_time):
-    while not client.is_closed():
-        current_time = datetime.now().time()
-        target_datetime = datetime.combine(date.today(), target_time)
-
-        if current_time > target_time:
-            target_datetime = target_datetime + timedelta(days=1)
-
-        time_until_target = target_datetime - datetime.now()
-
-        if time_until_target.total_seconds() > 0:
-            await asyncio.sleep(time_until_target.total_seconds())
-
-        await send_song_of_the_day()
-
-        # Schedule for the next day
-        target_time += timedelta(days=1)
 
 
 
