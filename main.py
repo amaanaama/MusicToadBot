@@ -29,7 +29,8 @@ target_time = time(13, 10)
 @client.event
 async def on_ready():
     print('Logged in as {0.user}'.format(client))
-    client.loop.create_task(schedule_send_song_of_the_day())
+    client.loop.create_task(schedule_send_song_of_the_day(target_time))
+
 
 @client.event
 async def on_message(message):
@@ -127,7 +128,7 @@ async def send_song_of_the_day():
 
 
 
-async def schedule_send_song_of_the_day():
+async def schedule_send_song_of_the_day(target_time):
     while not client.is_closed():
         current_time = datetime.now().time()
         target_datetime = datetime.combine(date.today(), target_time)
@@ -144,6 +145,7 @@ async def schedule_send_song_of_the_day():
 
         # Schedule for the next day
         target_time += timedelta(days=1)
+
 
 
 client.run(DISCORD_TOKEN)
