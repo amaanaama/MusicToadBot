@@ -23,14 +23,13 @@ client = discord.Client(intents=intents)
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET))
 
 playlist_storage = {}
-target_time = time(12, 00)  
+target_time = time(13, 00)  
 
 
 @client.event
 async def on_ready():
     print('Logged in as {0.user}'.format(client))
-    await send_song_of_the_day()  # Send the song of the day when the bot starts
-    client.loop.create_task(schedule_send_song_of_the_day())  # Schedule the task for the next day
+    client.loop.create_task(schedule_send_song_of_the_day())
 
 @client.event
 async def on_message(message):
@@ -112,7 +111,6 @@ async def send_song_of_the_day():
                 playlist_uri = playlist_data["playlist"]
                 playlist_tracks = sp.playlist_tracks(playlist_uri)
 
-                # Check if it's a new day or if the playlist has changed
                 today = date.today()
                 last_selected_song = playlist_data["song"]
                 if last_selected_song is None or last_selected_song["date"] != today.strftime('%Y-%m-%d'):
@@ -125,28 +123,7 @@ async def send_song_of_the_day():
                 artist_name = random_track['track']['artists'][0]['name']
                 spotify_track_url = random_track['track']['external_urls']['spotify']
 
-                # Get the cover image URL for the selected song
-                cover_image_url = get_cover_image(spotify_track_url)
-
-                if cover_image_url:
-                    # Download the cover image
-                    response = requests.get(cover_image_url)
-                    if response.status_code == 200:
-                        with open("cover_image.jpg", "wb") as f:
-                            f.write(response.content)
-
-                        # Send the message with the cover image
-                        message_text = f"Today's song of the day is {song_name} by {artist_name}!\n{spotify_track_url}"
-                        await channel.send(message_text, file=discord.File("cover_image.jpg"))
-                        os.remove("cover_image.jpg")
-                    else:
-                        # If there was an issue with the cover image, send the message without it
-                        message_text = f"Today's song of the day is {song_name} by {artist_name}!\n{spotify_track_url}"
-                        await channel.send(message_text)
-                else:
-                    # If cover image URL could not be retrieved, send the message without it
-                    message_text = f"Today's song of the day is {song_name} by {artist_name}!\n{spotify_track_url}"
-                    await channel.send(message_text)
+                await channel.send(f"Today's song of the day is {song_name} by {artist_name}!\n{spotify_track_url}")
 
 
 
@@ -155,27 +132,12 @@ async def schedule_send_song_of_the_day():
         current_time = datetime.now().time()
         target_datetime = datetime.combine(date.today(), target_time)
 
-        # Check if the current time is after the target time for today
         if current_time > target_time:
-            # Add one day to the target date to schedule for the next day
             target_datetime += timedelta(days=1)
 
-        # Calculate the seconds to sleep until the target time
         sleep_seconds = (target_datetime - datetime.now()).total_seconds()
         await asyncio.sleep(sleep_seconds)
 
         await send_song_of_the_day()
-        await asyncio.sleep(3600)
 
-        # Schedule the task for the next hour
-        target_datetime += timedelta(days=1)
-
-async def run_bot():
-    await client.login(DISCORD_TOKEN)  # Login the Discord client using the token
-    print('Bot is online and connected to Discord.')
-    client.loop.create_task(schedule_send_song_of_the_day())  # Schedule the task to start immediately
-    await client.start(DISCORD_TOKEN)  # Start the client using the token
-
-# Run the bot
-loop = asyncio.get_event_loop()
-loop.run_until_complete(run_bot())
+client.run(DISCORD_TOKEN)
