@@ -23,7 +23,7 @@ client = discord.Client(intents=intents)
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET))
 
 playlist_storage = {}
-target_time = time(13, 45)  
+target_time = time(13, 50)  
 
 
 @client.event
@@ -128,9 +128,11 @@ async def send_song_of_the_day():
                             f.write(response.content)
 
                         # Send the message with the cover image
-                        message_text = f"Today's song of the day is {song_name} by {artist_name}!\n{spotify_track_url}"
-                        await channel.send(message_text, file=discord.File("cover_image.jpg"))
-                        os.remove("cover_image.jpg")
+                        try:
+                            message_text = f"Today's song of the day is {song_name} by {artist_name}!\n{spotify_track_url}"
+                            await channel.send(message_text, file=discord.File("cover_image.jpg"))
+                        finally:
+                            os.remove("cover_image.jpg")
                     else:
                         # If there was an issue with the cover image, send the message without it
                         message_text = f"Today's song of the day is {song_name} by {artist_name}!\n{spotify_track_url}"
@@ -160,6 +162,9 @@ async def schedule_send_song_of_the_day():
         await asyncio.sleep(sleep_seconds)
 
         await send_song_of_the_day()
+
+        # Add one hour to the target time to schedule for the next hour
+        target_datetime += timedelta(hours=1)
 
 
 async def run_bot():
