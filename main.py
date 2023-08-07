@@ -150,21 +150,24 @@ async def schedule_send_song_of_the_day():
     
     while not client.is_closed():
         current_time = datetime.now().time()
+        target_time = datetime.time(14, 00)  # Set your desired target time here
         target_datetime = datetime.combine(date.today(), target_time)
-
-        # Check if the current time is after the target time for today
+        
         if current_time > target_time:
-            # Add one hour to the target time to schedule for the next hour
-            target_datetime += timedelta(hours=1)
-
+            target_datetime += timedelta(days=1)  # Schedule for the next day
+        elif current_time == target_time:
+            target_datetime += timedelta(hours=1)  # Schedule for the next hour
+        
         # Calculate the seconds to sleep until the target time
         sleep_seconds = (target_datetime - datetime.now()).total_seconds()
-        await asyncio.sleep(sleep_seconds)
+        if sleep_seconds > 0:
+            await asyncio.sleep(sleep_seconds)
 
         await send_song_of_the_day()
 
         # Add one hour to the target time to schedule for the next hour
         target_datetime += timedelta(hours=1)
+
 
 
 async def run_bot():
