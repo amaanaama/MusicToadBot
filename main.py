@@ -30,7 +30,7 @@ target_time = time(13, 25)
 @client.event
 async def on_ready():
     print('Logged in as {0.user}'.format(client))
-    client.loop.create_task(schedule_send_song_of_the_day(target_time))
+    send_song_of_the_day.start()
 
 
 @client.event
